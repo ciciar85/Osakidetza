@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador OPE Osakidetza - Administrativo</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel para JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuente -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --------------------------------------------------------
+        // BASE DE DATOS DE PREGUNTAS (EXTRACTO DE 20 PREGUNTAS)
+        // --------------------------------------------------------
+        // NOTA: Se han digitalizado las primeras 20 preguntas del PDF "236.pdf"
+        // y se han asignado las respuestas correctas según "ESK ERANTZUNAK_236.pdf".
+        // Para añadir más, sigue este formato.
+        
+        const questionsData = [
+            {
+                id: 1,
+                question: "Según el Decreto 147/2015, de 21 de julio, por el que se aprueba la Declaración sobre Derechos y Deberes de las personas en el sistema sanitario de Euskadi, son titulares de los derechos y deberes recogidos en esta Declaración:",
+                options: [
+                    "Todas las personas que accedan o utilicen las prestaciones y servicios sanitarios que se proporcionan por el sistema sanitario de Euskadi.",
+                    "Todas las personas nacidas en Euskadi.",
+                    "Todas las personas empadronadas en Euskadi.",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 2,
+                question: "Según el Decreto 147/2015... todos los derechos y obligaciones establecidos son exigibles:",
+                options: [
+                    "En relación a todas las acciones... en centros públicos o privados... Las acciones relativas a la investigación biomédica quedan fuera...",
+                    "En relación a todas las acciones... en centros públicos o concertados... Las acciones relativas a la investigación biomédica quedan fuera...",
+                    "En relación a todas las acciones... incluyendo investigación y docencia... de titularidad pública o privada o concertados de Euskadi.",
+                    "En relación a todas las acciones de carácter sanitario, incluyendo investigación y docencia, que se desarrollen en los centros, servicios o establecimientos sanitarios de titularidad pública o concertados que integran el sistema sanitario de Euskadi."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 3,
+                question: "Los principios que informan e inspiran el conjunto de acciones de carácter sanitario que se desarrollen en el sistema sanitario de Euskadi son:",
+                options: [
+                    "El respeto a la libertad de la persona, a su dignidad y a la autonomía en las decisiones que afecten a su salud.",
+                    "El respeto a todos los profesionales que integran el sistema sanitario de Euskadi.",
+                    "La promoción de la investigación científica en el marco del sistema sanitario de Euskadi.",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 4,
+                question: "El Decreto 147/2015 distingue bloques de derechos relacionados con los siguientes ámbitos:",
+                options: [
+                    "Relaciones asistenciales... participación en la investigación biomédica...",
+                    "Relaciones asistenciales... derechos en relación con la docencia...",
+                    "Relaciones asistenciales; participación responsable en la gestión de la propia salud; organización y gestión del sistema sanitario; políticas sanitarias específicas; asistencia específica (infancia, sexual, mayores, final vida); medidas de salud pública; obtención de la TIS.",
+                    "Relaciones asistenciales... obtención de la Tarjeta Individual Sanitaria (sin salud pública)."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 5,
+                question: "Corresponde a la persona paciente o usuaria del sistema sanitario de Euskadi:",
+                options: [
+                    "El derecho a que se empleen recursos razonables para garantizar la traducción...",
+                    "El derecho a recibir información sobre las vías a utilizar para la formulación de quejas, reclamaciones y sugerencias.",
+                    "El derecho a recibir información, tanto la madre como el padre, con carácter previo al parto...",
+                    "El derecho a la elección del profesional facultativo general, pediatra y de atención especializada."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 6,
+                question: "La persona paciente o usuaria tiene derecho:",
+                options: [
+                    "A recibir información sobre los recursos sanitarios... su calidad y requisitos de acceso a los mismos.",
+                    "A recibir información sobre los recursos... de manera individualizada...",
+                    "A recibir información sobre los recursos... así como los disponibles en otros sistemas sanitarios...",
+                    "A recibir información sobre los recursos... su calidad, coste y requisitos..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 7,
+                question: "El derecho a la participación de forma activa en las actuaciones del sistema sanitario de Euskadi:",
+                options: [
+                    "No está reconocido en el Decreto 147/2015.",
+                    "Está reconocido... como derecho colectivo que se ejerce a través de organizaciones.",
+                    "Está reconocido... que lo contempla tanto en su modalidad de participación directa como a través de organizaciones.",
+                    "Está reconocido... tanto en su modalidad de participación directa como a través de organizaciones y sindicatos."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 8,
+                question: "Se configuran las siguientes fases de la vida en las que se concretan necesidades específicas:",
+                options: [
+                    "1. Neonatología, infancia y la adolescencia. 2. Salud sexual... 3. Salud laboral...",
+                    "1. Infancia y adolescencia. 2. Salud sexual... 3. Salud laboral...",
+                    "1. Infancia. 2. Adolescencia... 3. Personas mayores...",
+                    "1. Infancia y la adolescencia. 2. Salud sexual y reproductiva. 3. Personas mayores. 4. Final de la vida."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 9,
+                question: "Se identifican los siguientes colectivos vulnerables:",
+                options: [
+                    "Menores de edad.",
+                    "Personas homosexuales y transexuales.",
+                    "Personas migrantes.",
+                    "Todas las respuestas anteriores son falsas."
+                ],
+                correctAnswer: 3 // D (Según hoja respuestas pregunta 9 -> D)
+            },
+            {
+                id: 10,
+                question: "Los niños y niñas y las personas adolescentes... tienen derecho:",
+                options: [
+                    "A la seguridad de recibir los cuidados que necesita... salvo oposición de los padres...",
+                    "A la seguridad de recibir los cuidados que necesita... salvo que la actuación sea contraria al entorno religioso...",
+                    "A la seguridad de recibir los cuidados que necesita, incluso en el caso de que fuese necesaria la intervención de la justicia, si los padres o madres... se los negaran por razones religiosas, culturales o cualquiera otras.",
+                    "A la seguridad de recibir los cuidados que necesita... necesaria la intervención de la Consejería de Sanidad..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 11,
+                question: "Se reconoce expresamente el derecho a:",
+                options: [
+                    "Poder decidir sobre intervenciones no estrictamente necesarias... tales como la episiotomía...",
+                    "A ejercer el derecho a amamantar a los hijos e hijas en cualquier espacio público.",
+                    "Las respuestas a y b son verdaderas.",
+                    "Las respuestas a y b son falsas."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 12,
+                question: "En relación con la asistencia sanitaria específica referida al final de la vida, tienen derecho a:",
+                options: [
+                    "Obtener información veraz... siempre que se exprese de forma directa o en forma de voluntades anticipadas.",
+                    "Obtener información veraz... tanto si se hace saber de forma directa como en forma de voluntades anticipadas o mediante una persona que la represente.",
+                    "Obtener información veraz... o a través de los familiares o allegados.",
+                    "Obtener información veraz... mediante una persona que la represente o a través de los familiares o allegados."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 13,
+                question: "En relación con la asistencia sanitaria específica referida al final de la vida, tienen derecho a:",
+                options: [
+                    "Al acompañamiento de familiares y personas allegadas en los procesos con hospitalización.",
+                    "Al uso con carácter general, de habitación individual.",
+                    "Al acompañamiento espiritual.",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 14,
+                question: "La posesión de la tarjeta individual sanitaria permite el derecho a:",
+                options: [
+                    "Obtener una segunda opinión médica en cualquier proceso clínico.",
+                    "Obtener una segunda opinión médica en la asistencia sanitaria especializada.",
+                    "Elegir profesional facultativo general y pediatra, pero el centro... será adjudicado...",
+                    "Elegir profesional facultativo general y pediatra, así como centro en atención primaria y, en su caso, a la elección del hospital, conforme a la normativa vigente."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 15,
+                question: "El Decreto 147/2015 establece deberes en relación con los siguientes ámbitos:",
+                options: [
+                    "Organización y gestión... políticas sanitarias... participación responsable... y relaciones asistenciales en el sistema sanitario de Euskadi.",
+                    "Organización... políticas... participación... relaciones asistenciales... y salud pública.",
+                    "Organización... políticas... participación... relaciones... salud pública; y participación en la investigación...",
+                    "Organización... políticas... participación... relaciones... salud pública; participación en investigación... y colaboración con la Administración."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 16,
+                question: "La persona paciente o usuaria:",
+                options: [
+                    "Debe dejar por escrito las decisiones cuando sea legalmente exigible o recomendable.",
+                    "Debe dejar por escrito las decisiones cuando se lo soliciten los profesionales.",
+                    "Debe dejar por escrito las decisiones cuando la política del centro lo establezca.",
+                    "Debe dejar por escrito las decisiones cuando puedan tener relevancia a efectos de responsabilidad."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 17,
+                question: "La persona paciente o usuaria deberá de cumplir los siguientes deberes:",
+                options: [
+                    "Facilitar datos... siempre que quede avalado por una orden judicial.",
+                    "Facilitar datos... siempre se solicite por escrito.",
+                    "Facilitar datos... siempre que se informe por escrito de las garantías...",
+                    "Facilitar, de forma veraz sus datos de identificación y los referentes a su estado físico o su salud, así como colaborar en su obtención, especialmente cuando sean necesarios para el episodio asistencial o por razones de interés público debidamente motivadas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 18,
+                question: "Los Servicios de atención a pacientes y personas usuarias:",
+                options: [
+                    "Estarán disponibles en las Organizaciones de Osakidetza, centros concertados, privados y departamento de sanidad.",
+                    "Estarán disponibles en las Organizaciones de Osakidetza, centros concertados y departamento de sanidad (no privados).",
+                    "Estarán disponibles en las Organizaciones de Osakidetza (no concertados/privados).",
+                    "Estarán disponibles en las Organizaciones de Osakidetza y en los centros sanitarios concertados y privados, pero no existe previsión en relación con el departamento competente en materia de sanidad."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 19,
+                question: "Son funciones de los Servicios de Atención a Pacientes y Personas usuarias:",
+                options: [
+                    "Tramitar y responder a las iniciativas y sugerencias...",
+                    "Formular propuestas de mediación...",
+                    "Comunicar a la dirección del centro... la posible comisión de hechos o conductas...",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 20,
+                question: "Los Servicios de Atención a Pacientes y Personas Usuarias registrarán:",
+                options: [
+                    "Todas las reclamaciones y solicitudes que se presenten ante ellos, con independencia del centro destinatario.",
+                    "Todas las reclamaciones y solicitudes... si es que el destinatario es el centro del que dependan.",
+                    "Todas las solicitudes (independientemente del centro) y reclamaciones (si es de su centro).",
+                    "Todas las reclamaciones (independientemente del centro) y solicitudes (si es de su centro)."
+                ],
+                correctAnswer: 0 // A
+            },
+
+{
+                id: 21,
+                question: "Según el Decreto 147/2015, de 21 de julio... las reclamaciones contra las personas usuarias de los centros, servicios y establecimientos sanitarios se tramitarán:",
+                options: [
+                    "Por el procedimiento que elija la persona que interpone la reclamación.",
+                    "Por el procedimiento vigente para ello.",
+                    "Por el mismo procedimiento previsto para las reclamaciones contra actuaciones del personal.",
+                    "El enunciado de la pregunta es incorrecto porque la norma citada no prevé reclamaciones contra las personas usuarias, aunque sí contra los profesionales sanitarios."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 22,
+                question: "Según el Decreto 147/2015... las reclamaciones contra actuaciones del personal:",
+                options: [
+                    "Se resolverán atendiendo a las normas disciplinarias específicas previa apertura, en su caso, del expediente informativo correspondiente, sin perjuicio de las responsabilidades que de los hechos pudieran derivarse.",
+                    "Se resolverán atendiendo a las normas disciplinarias generales previa apertura, en su caso, del expediente informativo correspondiente...",
+                    "Se resolverán atendiendo a las normas disciplinarias específicas previa apertura... y de expediente de mediación...",
+                    "Se resolverán atendiendo a las normas disciplinarias generales previa apertura... y de expediente de mediación..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 23,
+                question: "Según el Decreto 147/2015... la interposición de reclamaciones en los servicios de atención a pacientes y personas usuarias:",
+                options: [
+                    "Suspenderá el cómputo del plazo legalmente establecido para la interposición de cualquier otra vía de reclamación contra el hecho denunciado.",
+                    "Suspenderá el cómputo del plazo legalmente establecido para la interposición de reclamaciones en la vía civil.",
+                    "Suspenderá el cómputo del plazo legalmente establecido para la interposición de reclamaciones en la vía penal.",
+                    "No suspenderá el cómputo del plazo legalmente establecido para la interposición de cualquier otra vía de reclamación contra el hecho denunciado."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 24,
+                question: "Según el Decreto 147/2015... en los centros, servicios y establecimientos sanitarios de titularidad privada, no vinculados al sistema sanitario público... serán exigibles:",
+                options: [
+                    "Al menos, los derechos reconocidos a favor de las personas usuarias y pacientes en el artículo 4 y en el artículo 5, excepto los apartados e) y f).",
+                    "Al menos, los derechos reconocidos en el artículo 4, en el artículo 5 y en el artículo 6 a favor de las personas usuarias y pacientes.",
+                    "Todos los derechos reconocidos a favor de las personas usuarias y pacientes.",
+                    "Todas las respuestas anteriores son falsas."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 25,
+                question: "Según el Decreto 147/2015... a las personas usuarias de los centros... privados... les serán exigibles:",
+                options: [
+                    "No les serán exigibles los deberes previstos en los artículos 14 a 17.",
+                    "Les serán exigibles los deberes previstos en los artículos 14 a 17.",
+                    "Les serán exigibles los deberes previstos en los artículos 16 y 17 en relación con la participación responsable en la gestión de la propia salud, así como en las relaciones asistenciales.",
+                    "Les serán exigibles los deberes previstos en los artículos 15, 16 y 17..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 26,
+                question: "El objeto de la ley 41/2002, de 14 de noviembre, básica reguladora de la autonomía del paciente... es:",
+                options: [
+                    "La regulación de los derechos y obligaciones de los pacientes, usuarios y profesionales, así como de los centros y servicios sanitarios, públicos y privados, en materia de autonomía del paciente y de información y documentación clínica.",
+                    "La regulación de los derechos y obligaciones... así como de los centros y servicios sanitarios públicos...",
+                    "La regulación de los derechos y obligaciones de los pacientes y usuarios, así como de los centros y servicios sanitarios, públicos y privados...",
+                    "La regulación de los derechos y obligaciones de los pacientes y usuarios, así como de los centros y servicios sanitarios, públicos..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 27,
+                question: "Según dispone la ley 41/2002... la documentación clínica es:",
+                options: [
+                    "La información contenida en la historia clínica.",
+                    "El soporte de cualquier tipo o clase que contiene un conjunto de datos e informaciones de carácter asistencial y la documentación relativa a las voluntades anticipadas.",
+                    "El soporte de cualquier tipo o clase que contiene un conjunto de datos e informaciones de carácter asistencial y de investigación biomédica.",
+                    "El soporte de cualquier tipo o clase que contiene un conjunto de datos e informaciones de carácter asistencial."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 28,
+                question: "Según dispone la ley 41/2002... una intervención en el ámbito de la sanidad es:",
+                options: [
+                    "Toda actuación realizada con fines preventivos, diagnósticos, terapéuticos, rehabilitadores, de salud pública o de investigación.",
+                    "Toda actuación realizada con fines preventivos, diagnósticos, terapéuticos, rehabilitadores o de investigación.",
+                    "Toda actuación realizada con fines preventivos, diagnósticos, terapéuticos o rehabilitadores.",
+                    "Toda actuación realizada con fines preventivos, diagnósticos o terapéuticos."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 29,
+                question: "Según dispone la ley 41/2002... es usuario:",
+                options: [
+                    "La persona que requiere asistencia sanitaria y está sometida a cuidados profesionales...",
+                    "La persona que requiere asistencia sanitaria y está sometida a cuidados profesionales... en el sistema público de salud.",
+                    "La persona que utiliza los servicios sanitarios de educación y promoción de la salud, de prevención de enfermedades y de información sanitaria.",
+                    "La persona que utiliza los servicios sanitarios... en el sistema público de salud."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 30,
+                question: "Según dispone la ley 41/2002... la información asistencial:",
+                options: [
+                    "Como regla general se proporcionará verbalmente.",
+                    "Como regla general se proporcionará por escrito.",
+                    "Como regla general se proporcionará verbalmente y por escrito.",
+                    "Como regla general se proporcionará por escrito cuando se trate de pacientes menores de edad."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 31,
+                question: "Según dispone la ley 41/2002... la información asistencial contiene, como mínimo:",
+                options: [
+                    "La finalidad y la naturaleza de cada intervención.",
+                    "La finalidad y la naturaleza de cada intervención y sus riesgos.",
+                    "La finalidad y la naturaleza de cada intervención, sus riesgos y sus consecuencias.",
+                    "La finalidad y la naturaleza de cada intervención, sus riesgos, sus consecuencias y los derechos de los pacientes."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 32,
+                question: "Según dispone la ley 41/2002... garantiza el cumplimiento del derecho a la información asistencial:",
+                options: [
+                    "El médico responsable del paciente.",
+                    "El médico responsable del paciente y los profesionales que le atiendan durante el proceso asistencial o le apliquen una técnica o un procedimiento concreto.",
+                    "El médico responsable del paciente y el personal de enfermería.",
+                    "El centro sanitario."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 33,
+                question: "Según dispone la ley 41/2002... el titular del derecho a la información asistencial es:",
+                options: [
+                    "El paciente. También serán informadas las personas vinculadas a él, por razones familiares o de hecho, en la medida que el paciente lo permita de manera expresa o tácita.",
+                    "El paciente. También serán informadas las personas vinculadas a él... en la medida que el paciente lo permita de manera expresa.",
+                    "El paciente. También serán informadas las personas vinculadas a él... en la medida que el paciente lo permita por escrito.",
+                    "El paciente. También serán informadas las personas vinculadas a él, por razones familiares o de hecho."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 34,
+                question: "Según dispone la ley 41/2002... cuando el paciente... carezca de capacidad para entender la información:",
+                options: [
+                    "La información se pondrá en conocimiento de las personas vinculadas a él... si así lo dispone la autoridad judicial.",
+                    "La información se pondrá en conocimiento de las personas vinculadas a él... después de haber consultado al Comité de Ética Asistencial de Centro.",
+                    "La información se pondrá en conocimiento de las personas vinculadas a él... después de haber consultado con la dirección del centro.",
+                    "La información se pondrá en conocimiento de las personas vinculadas a él por razones familiares o de hecho."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 35,
+                question: "Según dispone la ley 41/2002... el estado de necesidad terapéutica:",
+                options: [
+                    "Excluye el derecho a la información sanitaria de los pacientes.",
+                    "Es la facultad del médico para actuar profesionalmente sin informar antes al paciente, cuando por su edad la información puede perjudicar su salud de manera grave.",
+                    "Se regulará en la normativa autonómica.",
+                    "No está contemplado en la legislación."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 36,
+                question: "Según dispone la ley 41/2002... el consentimiento:",
+                options: [
+                    "Será verbal por regla general, salvo en el caso de pacientes menores de edad.",
+                    "Será verbal por regla general.",
+                    "Será escrito por regla general.",
+                    "Será expreso y escrito por regla general."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 37,
+                question: "Según dispone la ley 41/2002... la renuncia del paciente a recibir información:",
+                options: [
+                    "Está limitada únicamente por el interés de la colectividad.",
+                    "Está limitada únicamente por las exigencias terapéuticas del caso.",
+                    "No está contemplada.",
+                    "Todas las respuestas anteriores son falsas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 38,
+                question: "Según dispone la ley 41/2002... cuando existe riesgo inmediato grave para la integridad física o psíquica del enfermo y no es posible conseguir su autorización:",
+                options: [
+                    "Los facultativos podrán llevar a cabo las intervenciones... con el consentimiento de los familiares.",
+                    "Los facultativos podrán llevar a cabo las intervenciones... con el consentimiento del representante legal.",
+                    "Los facultativos podrán llevar a cabo las intervenciones... con autorización judicial.",
+                    "Los facultativos podrán llevar a cabo las intervenciones clínicas indispensables en favor de la salud del paciente, sin necesidad de contar con su consentimiento."
+                ],
+                correctAnswer: 3 // D
+            },
+            // Pregunta 39 anulada en hoja oficial (espacio vacío). Saltamos a la 40.
+            {
+                id: 40,
+                question: "Según dispone la ley 41/2002... en relación con menores de edad, el consentimiento para la práctica de ensayos clínicos:",
+                options: [
+                    "Se rige por lo establecido en esta norma.",
+                    "Se rige por lo establecido con carácter general sobre la mayoría de edad.",
+                    "Se rige por lo establecido con carácter general sobre la mayoría de edad y por lo dispuesto en esta norma.",
+                    "Se rige por lo establecido con carácter general sobre la mayoría de edad y por las disposiciones especiales de aplicación."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 41,
+                question: "Según dispone la ley 41/2002... el facultativo proporcionará al paciente, antes de recabar su consentimiento escrito, la información básica siguiente:",
+                options: [
+                    "Todos los riesgos en condiciones normales...",
+                    "Todos los riesgos, siempre que sean graves, en condiciones normales...",
+                    "Todos los riesgos probables en condiciones normales, conforme a la experiencia y al estado de la ciencia o directamente relacionados con el tipo de intervención.",
+                    "Todos los riesgos, siempre que sean probables y graves, en condiciones normales..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 42,
+                question: "Según dispone la ley 41/2002... la historia clínica será archivada por:",
+                options: [
+                    "Cada centro.",
+                    "Cada servicio.",
+                    "Cada sistema de salud.",
+                    "Cada centro, servicio y sistema de salud."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 43,
+                question: "Según dispone la ley 41/2002... el acceso a la historia clínica con fines judiciales, epidemiológicos, de salud pública, de investigación o de docencia:",
+                options: [
+                    "Obliga a preservar los datos de identificación personal del paciente... salvo que el propio paciente haya dado su consentimiento... o exista autorización judicial.",
+                    "Obliga a solicitar el consentimiento del paciente y a preservar los datos...",
+                    "Obliga a preservar los datos... salvo que el Comité de Ética haya otorgado su autorización...",
+                    "Obliga a preservar los datos de identificación personal del paciente, separados de los de carácter clinicoasistencial, de manera que, como regla general, quede asegurado el anonimato, salvo que el propio paciente haya dado su consentimiento para no separarlos, si bien existen excepciones a esta regla."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 44,
+                question: "Según dispone la ley 41/2002... el procedimiento para que quede constancia del acceso a la historia clínica y de su uso:",
+                options: [
+                    "Será regulado por las Comunidades Autónomas.",
+                    "Será regulado por el Consejo Interterritorial de Sanidad.",
+                    "Será regulado por la normativa relativa a la protección de datos de carácter personal.",
+                    "Será regulado por cada centro sanitario."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 45,
+                question: "Según dispone la ley 41/2002... la documentación clínica se conservará:",
+                options: [
+                    "Como mínimo, tres años contados desde la fecha del alta de cada proceso asistencial.",
+                    "Como mínimo, cinco años contados desde la fecha del alta de cada proceso asistencial.",
+                    "Como mínimo, diez años contados desde la fecha del alta de cada proceso asistencial.",
+                    "Como mínimo, quince años contados desde la fecha del alta de cada proceso asistencial."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 46,
+                question: "Según dispone la ley 41/2002... la gestión de la historia clínica... se realizará:",
+                options: [
+                    "A través de la unidad de admisión y documentación clínica.",
+                    "A través de la dirección del centro.",
+                    "A través de los servicios del centro.",
+                    "A través de la unidad de gestión de historias clínicas del centro."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 47,
+                question: "Según dispone la ley 41/2002... el derecho de acceso del paciente a la historia clínica:",
+                options: [
+                    "Es personalísimo y no admite representación.",
+                    "Puede ejercerse por representación.",
+                    "Puede ejercerse por el paciente y sus familiares.",
+                    "Puede ejercerse por representación únicamente cuando se trate de pacientes menores de edad o incapacitados."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 48,
+                question: "Según dispone la ley 41/2002... (sobre adopción de medidas):",
+                options: [
+                    "El Estado, exclusivamente, adoptará las medidas necesarias para su efectividad.",
+                    "Las Comunidades Autónomas, exclusivamente, adoptarán las medidas necesarias para su efectividad.",
+                    "El Estado y las Comunidades Autónomas adoptarán las medidas necesarias para su efectividad.",
+                    "No se requiere la adopción de medidas necesarias..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 49,
+                question: "Según dispone la ley 41/2002... el acceso a la historia clínica de fallecidos:",
+                options: [
+                    "No se facilitará a terceros, salvo que se trate de familiares del fallecido.",
+                    "Se facilitará a familiares salvo que el fallecido lo hubiese prohibido expresamente.",
+                    "Se facilitará a familiares hasta el segundo grado, salvo que el fallecido lo hubiese prohibido expresamente.",
+                    "Se facilitará a familiares hasta el tercer grado, salvo que el fallecido lo hubiese prohibido expresamente."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 50,
+                question: "Según dispone la ley 41/2002... en caso de que el paciente no acepte el alta:",
+                options: [
+                    "El facultativo... oirá al paciente y, si persiste en su negativa, lo pondrá en conocimiento de la dirección del centro para que confirme o revoque la decisión.",
+                    "El facultativo... lo pondrá en conocimiento del juez...",
+                    "La dirección del centro, previa comprobación del informe clínico correspondiente, oirá al paciente y, si persiste en su negativa, lo pondrá en conocimiento del juez para que confirme o revoque la decisión.",
+                    "La dirección del centro... lo pondrá en conocimiento de la autoridad administrativa competente..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 51,
+                question: "Según dispone la ley 41/2002... las infracciones de lo dispuesto en esta ley:",
+                options: [
+                    "Quedan sometidas al régimen sancionador previsto en el capítulo VI del Título I de la Ley 14/1986, General de Sanidad, sin perjuicio de la responsabilidad civil o penal y de la responsabilidad profesional o estatutaria procedentes en derecho.",
+                    "Quedan sometidas al régimen sancionador previsto en su capítulo IV...",
+                    "Quedan sometidas al régimen sancionador previsto en el capítulo IV de la Ley 16/2003...",
+                    "Quedan sometidas al régimen sancionador previsto en las normas autonómicas..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 52,
+                question: "El objeto de la Ley 7/2002, de 12 de diciembre, de las voluntades anticipadas en el ámbito de la sanidad es:",
+                options: [
+                    "Hacer efectivo en la Comunidad Autónoma del País Vasco el derecho de las personas a la expresión anticipada de sus deseos con respecto a ciertas intervenciones médicas, mediante la regulación del documento de voluntades anticipadas en el ámbito de la sanidad.",
+                    "Regular en la Comunidad Autónoma del País Vasco el derecho de las personas...",
+                    "Regular las particularidades en la Comunidad Autónoma del País Vasco...",
+                    "Crear el Registro de Voluntades Anticipadas en la Comunidad Autónoma del País Vasco..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 53,
+                question: "Según dispone la Ley 7/2002... tiene derecho a manifestar sus objetivos vitales y valores personales, así como las instrucciones sobre su tratamiento:",
+                options: [
+                    "Cualquier persona mayor de dieciséis años que no haya sido judicialmente incapacitada para ello y actúe libremente.",
+                    "Cualquier persona mayor de edad que no haya sido judicialmente incapacitada para ello y actúe libremente.",
+                    "Cualquier persona mayor de edad y que actúe libremente, así como los representantes legales...",
+                    "Cualquier persona mayor de dieciséis años y que actúe libremente, así como los representantes legales..."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 54,
+                question: "Según dispone la Ley 7/2002... la expresión de los objetivos vitales y valores personales tiene como fin:",
+                options: [
+                    "Conocer la voluntad del paciente en relación con la administración de sedación.",
+                    "Conocer la voluntad del paciente en relación con la finalización de tratamientos de soporte vital.",
+                    "Ayudar a interpretar las instrucciones y servir de orientación para la toma de decisiones clínicas.",
+                    "Documentar la actuación de los profesionales sanitarios a efectos de responsabilidad legal..."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 55,
+                question: "Según dispone Ley 7/2002... en el documento de voluntades anticipadas:",
+                options: [
+                    "Se podrá designar uno o varios representantes para que sean los interlocutores válidos del médico o del equipo sanitario.",
+                    "Se podrá designar exclusivamente un representante para que sea el interlocutor válido del médico o del equipo sanitario.",
+                    "Se podrá designar uno o varios representantes... si el paciente es menor de edad.",
+                    "Se podrá designar uno o varios representantes... y facultarles para interpretar sus valores e instrucciones, si el paciente está incapacitado judicialmente."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 56,
+                question: "Según dispone la Ley 7/2002... cualquier persona mayor de edad y que no haya sido incapacitada legalmente para ello puede ser representante, con la salvedad de:",
+                options: [
+                    "El ex cónyuge.",
+                    "Los testigos ante los que se formalice el documento.",
+                    "El personal sanitario.",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 57,
+                question: "Según la Ley 7/2002... si el nombramiento de representante en el documento de instrucciones previas ha recaído en favor del cónyuge o pareja de hecho de la persona otorgante:",
+                options: [
+                    "Se extingue a partir, bien de la interposición de la demanda de nulidad, separación matrimonial o divorcio, bien de la extinción formalizada de la pareja de hecho o unión libre. Para el mantenimiento de la designación será necesario... que conste expresamente en la resolución judicial...",
+                    "Se extingue a partir bien de la nulidad, separación matrimonial o divorcio... Para el mantenimiento... que conste expresamente en la resolución judicial...",
+                    "Se extingue a partir, bien de la interposición de la demanda... Para el mantenimiento... que conste expresamente en el documento de instrucciones previas.",
+                    "Se extingue bien a partir de la nulidad... Para el mantenimiento... que conste expresamente en el documento de instrucciones previas."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 58,
+                question: "Según dispone Ley 7/2002... las instrucciones sobre el tratamiento pueden referirse:",
+                options: [
+                    "A una enfermedad o lesión que la persona otorgante ya padece o a las que eventualmente podría padecer en un futuro.",
+                    "Exclusivamente a una enfermedad o lesión que la persona otorgante ya padece.",
+                    "Exclusivamente a una enfermedad o lesión que la persona otorgante eventualmente podría padecer en un futuro.",
+                    "Exclusivamente a una enfermedad o lesión que la persona otorgante eventualmente podría padecer en un futuro, siempre que sea de carácter grave."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 59,
+                question: "Según dispone la Ley 7/2002... el documento de voluntades anticipadas:",
+                options: [
+                    "Se formaliza por escrito y mediante uno de los siguientes procedimientos...: Ante notario; ante el funcionario...; o ante dos testigos.",
+                    "Se formaliza por escrito y mediante uno de los siguientes procedimientos...: Ante notario; ante el funcionario...; o ante tres testigos.",
+                    "Se formaliza por escrito y mediante uno de los siguientes procedimientos...: Ante notario; ante el funcionario... o del servicio de documentación de un centro sanitario...; o ante dos testigos.",
+                    "Se formaliza por escrito y mediante uno de los siguientes procedimientos...: Ante notario; ante el funcionario... o del servicio de documentación de un centro sanitario...; o ante tres testigos."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 60,
+                question: "Según dispone la Ley 7/2002... los testigos:",
+                options: [
+                    "Serán personas mayores de dieciséis años, con plena capacidad de obrar y no vinculadas con el otorgante...",
+                    "Serán personas mayores de dieciséis años, con plena capacidad de obrar y no vinculadas con el otorgante... parentesco hasta el tercer grado...",
+                    "Serán personas mayores de edad, con plena capacidad de obrar y no vinculadas con el otorgante...",
+                    "Serán personas mayores de edad, con plena capacidad de obrar y no vinculadas con el otorgante... parentesco hasta el segundo grado..."
+                ],
+                correctAnswer: 0 // A
+            },
+{
+                id: 61,
+                question: "Según dispone la Ley 7/2002, de 12 de diciembre, de las voluntades anticipadas en el ámbito de la sanidad, el documento de voluntades anticipadas puede ser modificado, sustituido por otro o revocado en cualquier momento por la persona otorgante:",
+                options: [
+                    "Siempre que conserve la capacidad o actúe asistido por su representante legal y actúe libremente.",
+                    "Siempre que conserve la capacidad o exista autorización judicial.",
+                    "Siempre que actúe libremente.",
+                    "Siempre que conserve la capacidad y actúe libremente."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 62,
+                question: "Según dispone Ley 7/2002... la modificación, sustitución o revocación del documento de voluntades anticipadas se formaliza:",
+                options: [
+                    "Por escrito o verbalmente, y ante notario o ante el funcionario o empleado público encargado del Registro Vasco de Voluntades Anticipadas o ante tres testigos.",
+                    "Por escrito y ante notario o ante el funcionario o empleado público encargado del Registro Vasco de Voluntades Anticipadas o ante tres testigos.",
+                    "Por escrito o verbalmente, y ante el funcionario o empleado público encargado del Registro Vasco de Voluntades donde se encuentra registrado el documento inicial.",
+                    "Por escrito y ante el funcionario o empleado público encargado del Registro Vasco de Voluntades donde se encuentra registrado el documento inicial."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 63,
+                question: "Según dispone la Ley 7/2002... la voluntad de la persona prevalece sobre las instrucciones contenidas en el documento de voluntades anticipadas ante cualquier intervención clínica siempre que:",
+                options: [
+                    "La persona otorgante conserve su capacidad y su libertad de actuación.",
+                    "La persona otorgante conserve su capacidad, su libertad de actuación y la posibilidad de expresarse.",
+                    "La persona otorgante conserve su capacidad, su libertad de actuación y la posibilidad de expresarse de manera inequívoca.",
+                    "La persona otorgante conserve su capacidad, su libertad de actuación y la posibilidad de expresarse de manera inequívoca o a través del interlocutor designado al efecto."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 64,
+                question: "Según dispone la Ley 7/2002... en el documento de voluntades anticipadas se tendrán por no puestas:",
+                options: [
+                    "Las instrucciones que en el momento de ser aplicadas resulten contrarias al ordenamiento jurídico.",
+                    "Las instrucciones que en el momento de ser otorgadas resulten contrarias al ordenamiento jurídico.",
+                    "Las respuestas a y b son correctas.",
+                    "Las instrucciones que en el momento de ser aplicadas no se aprueben por el comité de ética del centro."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 65,
+                question: "Según dispone la Ley 7/2002... en el documento de voluntades anticipadas se tendrán por no puestas:",
+                options: [
+                    "Las instrucciones que resulten contraindicadas para su patología.",
+                    "Las instrucciones que en el momento de ser aplicadas resulten contrarias al ordenamiento jurídico.",
+                    "Las instrucciones que no se correspondan con los tipos de supuestos previstos por la persona otorgante al formalizar el documento de voluntades anticipadas.",
+                    "Todas las respuestas anteriores son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 66,
+                question: "Según dispone la Ley 7/2002... el Registro de Voluntades Anticipadas:",
+                options: [
+                    "Se creará únicamente en el ámbito estatal y estará adscrito al Ministerio de Sanidad.",
+                    "Se creará únicamente en el ámbito estatal y estará adscrito al Ministerio de Justicia",
+                    "Se creará en la Comunidad Autónoma del País Vasco y estará adscrito al Departamento de Sanidad.",
+                    "Se creará en la Comunidad Autónoma del País Vasco y estará adscrito al Departamento de Justicia."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 67,
+                question: "Según dispone la Ley 7/2002... en el Registro de Voluntades Anticipadas:",
+                options: [
+                    "Las personas podrán inscribir el otorgamiento, la modificación, la sustitución y la revocación de los documentos de voluntades anticipadas en el ámbito de la sanidad.",
+                    "Las personas podrán inscribir exclusivamente el otorgamiento, la sustitución y la revocación... La modificación no se inscribirá...",
+                    "Las personas podrán inscribir exclusivamente el otorgamiento y la revocación... La modificación y la sustitución no se inscribirá...",
+                    "Las personas podrán inscribir exclusivamente el otorgamiento... La modificación, sustitución y revocación no se inscribirá..."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 68,
+                question: "Según dispone la Ley 7/2002... el Registro Vasco de Voluntades Anticipadas funcionará con arreglo al principio de:",
+                options: [
+                    "Interconexión exclusivamente con otros Registros de Voluntades Anticipadas o de Instrucciones Previas.",
+                    "Interconexión con otros Registros de Voluntades Anticipadas o de Instrucciones Previas y con otros cuya finalidad sea prestar asistencia sanitaria.",
+                    "Interconexión con otros Registros de Voluntades Anticipadas o de Instrucciones Previas... exclusivamente en el ámbito estatal.",
+                    "Interconexión con otros Registros de Voluntades Anticipadas... así como con aquellos donde se registren las incapacitaciones judiciales."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 69,
+                question: "La Ley 7/2002... el Registro Vasco de Voluntades Anticipadas funcionará con arreglo a los principios de:",
+                options: [
+                    "Autonomía, beneficencia, no maleficencia y justicia.",
+                    "Autonomía, no maleficencia y justicia.",
+                    "Autonomía y justicia.",
+                    "Todas las respuestas anteriores son falsas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 70,
+                question: "Según dispone la Ley 7/2002... la interconexión prevista para el Registro Vasco de Voluntades Anticipadas:",
+                options: [
+                    "Precisará el consentimiento de la persona otorgante en el momento del registro del documento, y de del interlocutor designado para la comunicación efectiva de los datos.",
+                    "Precisará el consentimiento de la persona otorgante para la comunicación de los datos.",
+                    "No precisará el consentimiento de la persona otorgante para la comunicación de los datos.",
+                    "No precisará el consentimiento de la persona otorgante para la comunicación de los datos pero sí autorización de la Agencia Vasca de Protección de Datos."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 71,
+                question: "Según dispone la Ley 7/2002... el documento de voluntades anticipadas que no haya sido inscrito en el Registro Vasco de Voluntades Anticipadas:",
+                options: [
+                    "Debe entregarse en el centro sanitario donde su otorgante sea atendido.",
+                    "Debe entregarse en el centro sanitario donde su otorgante sea atendido y validado por un juez.",
+                    "Carece de eficacia.",
+                    "Carece de eficacia si el otorgante no puede validarlo por sí mismo en ese momento."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 72,
+                question: "Según dispone la Ley 7/2002... el documento de voluntades anticipadas que haya sido inscrito en el Registro Vasco de Voluntades Anticipadas:",
+                options: [
+                    "No se entregará en el centro sanitario donde su otorgante sea atendido, puesto que se garantiza la interconexión entre este registro y el que se mantiene en el centro con finalidad de asistencia sanitaria.",
+                    "Se puede entregar voluntariamente en el centro sanitario donde su otorgante sea atendido.",
+                    "Se debe entregar en el centro sanitario donde su otorgante sea atendido.",
+                    "Se debe entregar en el centro sanitario donde su otorgante sea atendido si es que existen modificaciones en relación con el contenido que consta en el Registro."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 73,
+                question: "Según dispone la Ley 7/2002... la entrega del documento de voluntades anticipadas en el centro sanitario corresponde a:",
+                options: [
+                    "La persona otorgante. Si ésta no pudiera entregarlo, lo harán sus familiares, su representante legal, el representante designado en el propio documento o, en el caso de los documentos inscritos, el Registro Vasco de Voluntades Anticipadas.",
+                    "La persona otorgante. Si ésta no pudiera entregarlo, lo harán sus familiares, su representante legal o el representante designado en el propio documento.",
+                    "La persona otorgante. Si ésta no pudiera entregarlo, lo harán sus familiares o su representante legal.",
+                    "La persona otorgante o, en el caso de los documentos inscritos, el Registro Vasco de Voluntades Anticipadas."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 74,
+                question: "Según dispone la Ley 7/2002... el Gobierno Vasco:",
+                options: [
+                    "Crea el Registro Vasco de Voluntades Anticipadas al aprobar la ley 7/2002.",
+                    "Tiene la potestad de crear el Registro Vasco de Voluntades Anticipadas.",
+                    "Se obliga a crear el Registro Vasco de Voluntades Anticipadas, sin que conste un plazo al efecto.",
+                    "Se obliga a crear, en el plazo de diez meses, el Registro Vasco de Voluntades Anticipadas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 75,
+                question: "Señale la respuesta que es correcta. La ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales:",
+                options: [
+                    "Tiene por objeto garantizar los derechos digitales de la ciudadanía conforme al mandato establecido en el artículo 18.4 de la Constitución.",
+                    "Resulta de aplicación, con carácter general, a los tratamientos de datos de personas fallecidas.",
+                    "Resulta de aplicación a los tratamientos sometidos a la normativa sobre protección de materias clasificadas.",
+                    "Ninguna de las respuestas es correcta."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 76,
+                question: "Podrán tener acceso a los datos personales de las personas fallecidas:",
+                options: [
+                    "Las personas vinculadas al fallecido por razones familiares o de hecho así como sus herederos en todo caso.",
+                    "Solo las personas vinculadas al fallecido por razones familiares siempre que lo hubiera autorizado expresamente la persona fallecida.",
+                    "Las personas vinculadas al fallecido por razones familiares o de hecho así como sus herederos salvo que la persona fallecida lo hubiese prohibido expresamente.",
+                    "En caso de que el fallecido fuera un menor, el acceso podrá ejercerse también por sus representantes legales o por el Ministerio Fiscal que siempre actuará de oficio."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 77,
+                question: "No será imputable al responsable del tratamiento... cuando los datos inexactos:",
+                options: [
+                    "Hubiesen sido obtenidos por el responsable directamente del afectado.",
+                    "Fuesen sometidos a tratamiento por el responsable por haberlos recibido de otro responsable en virtud del ejercicio por el afectado del derecho a la portabilidad.",
+                    "Fuesen obtenidos de un registro público por el responsable.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 78,
+                question: "Señale la respuesta que NO es correcta. Según la ley Orgánica 3/2018... a efectos del tratamiento de los datos, el consentimiento del afectado tiene que ser una manifestación de voluntad que cumpla las siguientes características:",
+                options: [
+                    "Libre.",
+                    "Verbal.",
+                    "Específica.",
+                    "Informada."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 79,
+                question: "Con relación al tratamiento de los datos personales de un menor de edad, señale la respuesta correcta:",
+                options: [
+                    "Únicamente podrá fundarse en su consentimiento cuando sea mayor de dieciséis años.",
+                    "La Ley Orgánica 3/2018... no prevé que los menores de edad puedan dar su consentimiento válidamente a estos efectos.",
+                    "Únicamente podrá fundarse en su consentimiento cuando sea mayor de catorce años.",
+                    "El tratamiento de los datos de los menores de dieciséis años, fundado en el consentimiento, solo será lícito si consta el consentimiento de los progenitores, con el alcance que estos determinen."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 80,
+                question: "La ley Orgánica 3/2018... considera categorías especiales de datos aquellos que permitan respecto al afectado identificar:",
+                options: [
+                    "Su ideología y afiliación sindical.",
+                    "Su religión y orientación sexual.",
+                    "Sus creencias u origen racial o étnico.",
+                    "Todas las respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 81,
+                question: "La ley Orgánica 3/2018... establece que el tratamiento de datos de naturaleza penal podrá llevarse a cabo:",
+                options: [
+                    "Solo por abogados y cuando tengan por objeto recoger la información facilitada por sus clientes para el ejercicio de sus funciones.",
+                    "Por abogados y procuradores, cuando tengan por objeto recoger la información facilitada por sus clientes para el ejercicio de sus funciones.",
+                    "En los casos previstos por la propia Ley Orgánica 3/2018 y en otras normas de rango reglamentario.",
+                    "Exclusivamente en los supuestos amparados en una norma de Derecho de la Unión Europea y en la propia Ley Orgánica 3/2018."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 82,
+                question: "Cuando los datos personales hayan sido obtenidos del afectado... la información básica que el responsable... ha de facilitar... NO incluye:",
+                options: [
+                    "Las categorías de datos objeto de tratamiento.",
+                    "La identidad del responsable del tratamiento y de su representante, en su caso.",
+                    "La finalidad del tratamiento.",
+                    "La posibilidad de ejercer los derechos establecidos en los artículos 15 a 22 del Reglamento (UE) 2016/679."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 83,
+                question: "Los derechos de acceso, rectificación, cancelación y oposición reconocidos por la Ley Orgánica 3/2018:",
+                options: [
+                    "Solo pueden ser ejercidos por los mayores de edad.",
+                    "Pueden ser ejercidos por los menores de catorce años sin ninguna limitación.",
+                    "En el caso de los menores de catorce años, son los titulares de la patria potestad quienes podrán ejercitar estos derechos en su nombre y representación.",
+                    "En el caso de los menores de dieciséis años, son los titulares de la patria potestad quienes podrán ejercitar estos derechos en su nombre y representación."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 84,
+                question: "Respecto al derecho de rectificación que regula la Ley Orgánica 3/2018, señale la respuesta correcta:",
+                options: [
+                    "El afectado deberá indicar en su solicitud a qué datos se refiere y deberá acompañar, en todo caso, la documentación justificativa de la inexactitud de los datos.",
+                    "El afectado deberá indicar en su solicitud a qué datos se refiere y la corrección que haya de realizarse, y cuando sea preciso, deberá acompañar la documentación justificativa de la inexactitud o carácter incompleto de los datos objeto de tratamiento.",
+                    "El afectado deberá indicar en su solicitud solo la corrección que haya de realizarse y debe siempre acompañar la documentación justificativa de la inexactitud de los datos.",
+                    "No es necesario que el afectado indique expresamente en su solicitud qué datos deben rectificarse."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 85,
+                question: "La Ley Orgánica 3/2018... se presumirá lícito el tratamiento... por sistemas comunes de información... mientras persista el incumplimiento:",
+                options: [
+                    "Con el límite máximo de cinco años desde la fecha de vencimiento de la obligación dineraria, financiera o de crédito.",
+                    "Con el límite máximo de cuatro años desde la fecha de vencimiento de la obligación dineraria, financiera o de crédito.",
+                    "Con el límite máximo de cuatro años desde la fecha en la que se adquiere la obligación dineraria, financiera o de crédito.",
+                    "Con el límite máximo de seis años desde la fecha de vencimiento de la obligación dineraria, financiera o de crédito."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 86,
+                question: "Con relación al tratamiento de datos con fines de videovigilancia señale la respuesta correcta:",
+                options: [
+                    "Solo las personas físicas podrán llevar a cabo el tratamiento de imágenes a través de sistemas de cámaras o videocámaras con la finalidad de preservar la seguridad de las personas y bienes, así como sus instalaciones.",
+                    "Los datos serán suprimidos, en todo caso, en el plazo máximo de un mes desde su captación.",
+                    "Los datos serán suprimidos en el plazo máximo de un mes desde su captación, salvo cuando hubieran de ser conservados para acreditar la comisión de actos que atenten contra la integridad de personas, bienes o instalaciones.",
+                    "En el caso de que los datos hubieran de ser conservados más allá del plazo de un mes desde su captación para acreditar la comisión de actos que atenten contra la integridad de personas, bienes o instalaciones, deberán ser puestas a disposición de la autoridad competente en un placo máximo de cuarenta y ocho horas desde que se tuviera conocimiento de la existencia de la grabación."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 87,
+                question: "Respecto a los sistemas de información de denuncias internas que contempla la Ley Orgánica 3/2018... es correcta la siguiente afirmación:",
+                options: [
+                    "En todo caso, transcurridos tres meses desde la introducción de los datos, deberá procederse a su supresión del sistema de denuncias, salvo que la finalidad de la conservación sea dejar evidencia del funcionamiento del modelo de prevención de la comisión de delitos.",
+                    "En todo caso, transcurridos seis meses desde la introducción de los datos, deberá procederse a su supresión del sistema de denuncias, salvo que la finalidad de la conservación sea dejar evidencia del funcionamiento del modelo de prevención de la comisión de delitos.",
+                    "En todo caso, y sin excepción, transcurridos seis meses desde la introducción de los datos, deberá procederse a su supresión del sistema de denuncias.",
+                    "La Ley no prevé plazo temporal alguno para la supresión de los datos del sistema de denuncias."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 88,
+                question: "La Ley Orgánica 3/2018... afirma que el bloqueo de los datos debe impedir su tratamiento, incluyendo su visualización, EXCEPTO para la puesta a disposición de los datos:",
+                options: [
+                    "A los jueces y tribunales.",
+                    "Al Ministerio Fiscal.",
+                    "A las Administraciones Públicas competentes.",
+                    "Todas las respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 89,
+                question: "Señale la respuesta que NO es correcta. Los responsables y encargados del tratamiento deberán designar un delegado de protección de datos, cuando se trate de las siguientes entidades:",
+                options: [
+                    "Los colegios profesionales y sus consejos generales.",
+                    "Las Universidades solo si son públicas.",
+                    "Los establecimientos financieros de crédito.",
+                    "Las entidades aseguradoras y reaseguradoras."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 90,
+                question: "Señale cuál es el plazo... para comunicar... las designaciones, nombramientos y ceses de los delegados de protección de datos:",
+                options: [
+                    "Cinco días.",
+                    "Quince días.",
+                    "Diez días.",
+                    "Ocho días."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 91,
+                question: "Con relación a la figura del delegado de protección de datos que regula la Ley Orgánica 3/2018... es correcta la siguiente afirmación:",
+                options: [
+                    "Sólo puede recaer el nombramiento en una persona física.",
+                    "Se le reconoce la capacidad para emitir recomendaciones en el ámbito de sus competencias.",
+                    "Es necesario que cuente con una titulación universitaria que acredite conocimientos especializados en el derecho y la práctica de protección de datos.",
+                    "Cuando se trate de una persona física integrada en la organización del responsable o encargado del tratamiento, el delegado de protección de datos podrá ser removido y sancionado por la Agencia Española de Protección de Datos o, en su caso, por las autoridades autonómicas de protección de datos."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 92,
+                question: "En el caso de reclamación... señale en este caso el plazo en el que el delegado de protección de datos debe comunicar al afectado la decisión adoptada:",
+                options: [
+                    "Plazo máximo de un mes desde que tiene lugar el hecho que da lugar a la reclamación.",
+                    "Plazo máximo de un mes a contar desde la recepción de la reclamación.",
+                    "Plazo máximo de dos meses a contar desde la recepción de la reclamación.",
+                    "Plazo máximo de tres meses a contar desde la recepción de la reclamación."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 93,
+                question: "Los códigos de conducta a los que se refiere el artículo 38 de la Ley Orgánica 3/2018:",
+                options: [
+                    "Solo son vinculantes para quienes se adhieran a los mismos.",
+                    "Su aprobación compete al delegado de protección de datos.",
+                    "Su aprobación compete siempre y en todo caso a la Agencia Española de Protección de Datos.",
+                    "Su aprobación compete al Comité Europeo de Protección de Datos."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 94,
+                question: "El procedimiento para las transferencias internacionales de datos se iniciará a instancia de una entidad situada en España y:",
+                options: [
+                    "Tendrá una duración máxima de seis meses.",
+                    "Tendrá una duración máxima de nueve meses.",
+                    "Tendrá una duración máxima de tres meses.",
+                    "Tendrá una duración máxima de doce meses."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 95,
+                question: "Señale la respuesta correcta respecto a la Agencia Española de Protección de Datos:",
+                options: [
+                    "Su denominación oficial es 'Agencia Española de Protección de Datos, Autoridad Administrativa Independiente'.",
+                    "Es una entidad administrativa de ámbito estatal sin personalidad jurídica propia.",
+                    "Su denominación oficial es 'Agencia Española de Protección de Datos'.",
+                    "Se relaciona con el Gobierno a través de la Presidencia del Gobierno."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 96,
+                question: "Respecto al régimen económico presupuestario de la Agencia Española de Protección de Datos:",
+                options: [
+                    "El Gobierno elabora y aprueba su presupuesto para que sea integrado, con independencia, en los Presupuestos Generales del Estado.",
+                    "Corresponde a la Presidencia de la Agencia autorizar las modificaciones presupuestarias que impliquen hasta un tres por ciento de la cifra inicial de su presupuesto total de gastos, siempre que no se incrementen los créditos para gastos de personal.",
+                    "Corresponde a la Presidencia de la Agencia autorizar las modificaciones presupuestarias que impliquen hasta un cinco por ciento de la cifra inicial de su presupuesto total de gastos, siempre que no se incrementen los créditos para gastos de personal.",
+                    "Toda modificación presupuestaria debe ser autorizadas por el Gobierno."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 97,
+                question: "Respecto al procedimiento de nombramiento de la Presidencia de la Agencia Española de Protección de Datos, señale la respuesta correcta:",
+                options: [
+                    "Será nombrada por el Gobierno, a propuesta del Ministerio de Justicia, y estará auxiliada por dos Adjuntos.",
+                    "Su nombramiento debe ser ratificado por la Comisión de Justicia del Congreso de los Diputados por mayoría absoluta de sus miembros en primera votación.",
+                    "Su nombramiento debe ser ratificado por la Comisión de Justicia del Congreso de los Diputados por mayoría de tres quintos de sus miembros en primera votación.",
+                    "Será nombrada por el Parlamento mediante Ley."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 98,
+                question: "El mandato de la Presidencia de la Agencia Española de Protección de datos tiene una duración de:",
+                options: [
+                    "Cinco años y puede ser renovado para otro período de igual duración.",
+                    "Cuatro años y puede ser renovado para otro período de igual duración.",
+                    "Cuatro años y no cabe la reelección.",
+                    "Cinco años y puede ser renovado para otros dos períodos de igual duración."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 99,
+                question: "Señale la respuesta que no es correcta con relación al Consejo Consultivo de la Agencia Española de Protección de Datos:",
+                options: [
+                    "Forman parte del Consejo Consultivo dos expertos propuestos por las organizaciones sindicales más representativas.",
+                    "Sus decisiones tienen carácter vinculante.",
+                    "La condición de experto requerirá acreditar conocimientos especializados en el Derecho y la práctica en materia de protección de datos mediante el ejercicio profesional o académico.",
+                    "Sus miembros serán nombrados por orden del Ministro de Justicia, publicada en el Boletín Oficial del Estado."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 100,
+                question: "Las reclamaciones presentadas ante la Agencia Española de Protección de Datos podrán ser inadmitidas a trámite cuando:",
+                options: [
+                    "No versen sobre cuestiones de protección de datos personales.",
+                    "Carezcan manifiestamente de fundamento.",
+                    "Sean abusivas o no aporten indicios racionales de la existencia de una infracción.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+
+{
+                id: 101,
+                question: "El régimen sancionador establecido en el Reglamento (UE) 2016/679 y en la Ley Orgánica 3/2018... NO será de aplicación:",
+                options: [
+                    "A los responsables de los tratamientos.",
+                    "Al delegado de protección de datos.",
+                    "A los encargados de los tratamientos.",
+                    "A las entidades acreditadas de supervisión de los códigos de conducta."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 102,
+                question: "Ley Orgánica 3/2018... establece que las infracciones consideradas muy graves:",
+                options: [
+                    "Prescribirán a los tres años.",
+                    "Prescribirán a los dos años.",
+                    "Prescribirán a los cinco años",
+                    "No prescribirán."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 103,
+                question: "Conforme a la Ley Orgánica 3/2018... la interrupción de la prescripción... se produce cuando se inicie... el procedimiento sancionador. Y se reinicia el plazo de prescripción si el expediente sancionador estuviese paralizado:",
+                options: [
+                    "Más de tres meses por causas no imputables al presunto infractor.",
+                    "Más de un año por causas no imputables al presunto infractor.",
+                    "Más de seis meses por causas no imputables al presunto infractor.",
+                    "Más de nueve meses por causas no imputables al presunto infractor."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 104,
+                question: "El acceso a contenidos gestionados por prestadores de servicios de la sociedad de la información sobre personas fallecidas se reconoce:",
+                options: [
+                    "A las personas vinculadas al fallecido por razones familiares o de hecho, así como a sus herederos.",
+                    "Al albacea testamentario.",
+                    "A aquella persona o institución a la que el fallecido hubiese designado expresamente para ello.",
+                    "Todas las respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 105,
+                question: "Señale la respuesta correcta. La Ley 4/2005, de 18 de febrero, para la igualdad de Mujeres y Hombres y vidas libres de violencias machistas contra las mujeres:",
+                options: [
+                    "No contempla las medidas de acción positiva.",
+                    "No considera constitutivas de discriminación por razón de sexo las medidas de acción positiva.",
+                    "Solo prohíbe expresamente la discriminación directa.",
+                    "Afirma que las medidas de acción positiva no tienen carácter temporal."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 106,
+                question: "Conforme a la Ley 4/2005... se considera que existe una representación equilibrada cuando en los órganos de más de cuatro miembros las personas de cada sexo están representadas al menos al:",
+                options: [
+                    "40%.",
+                    "50%.",
+                    "30%.",
+                    "Ninguna de las respuestas anteriores es correcta."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 107,
+                question: "El instrumento para disponer de una visión global y permanente de la situación y evolución de la igualdad de mujeres y hombres en Euskadi... se denomina:",
+                options: [
+                    "Observatorio Vasco para la Igualdad de Mujeres y Hombres.",
+                    "Emakunde-Instituto Vasco de la Mujer.",
+                    "Eustat-Instituto Vasco de Estadística.",
+                    "Defensoría para la Igualdad de Mujeres y Hombres."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 108,
+                question: "Se considera que existe una representación equilibrada cuando en los tribunales, jurados u órganos afines de más de cuatro integrantes cada sexo está representado al menos al:",
+                options: [
+                    "50%.",
+                    "60%.",
+                    "40%.",
+                    "30%."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 109,
+                question: "Conforme a la Ley 4/2005... la Administración educativa en sus convocatorias de apoyo a la formación y a la investigación, valorará especialmente aquellos proyectos que:",
+                options: [
+                    "Estén liderados por mujeres en cualquier rama del conocimiento con independencia de su representación.",
+                    "Estén liderados por mujeres, en aquellas ramas de la investigación en las que estén infrarrepresentadas.",
+                    "Tengan en los equipos de investigación una representación de, al menos, el 50% de mujeres.",
+                    "Ninguna de las anteriores respuestas es correcta."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 111,
+                question: "Conforme a la Ley 4/2005... la Administración de la Comunidad Autónoma velará para que los Convenios Colectivos:",
+                options: [
+                    "No contengan cláusulas contrarias al principio de igualdad de mujeres y hombres.",
+                    "Hagan un uso no sexista del lenguaje.",
+                    "Incorporen medidas específicas para prevenir y combatir el acoso sexual o por razón de sexo.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 112,
+                question: "Señale la respuesta correcta. Conforme a la Ley 4/2005...:",
+                options: [
+                    "Ante las denuncias de acoso sexual y acoso por razón de sexo los poderes públicos vascos actuarán de oficio.",
+                    "Solo se contempla el acoso por razón de sexo.",
+                    "Solo se define el acoso sexual.",
+                    "Ante las denuncias de acoso sexual los poderes públicos vascos actuarán solo y siempre a instancia de parte."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 113,
+                question: "Conforme a la Ley 4/2005... señale cuál de las siguientes afirmaciones es cierta:",
+                options: [
+                    "La violencia machista solo abarca la violencia ejercida en el ámbito privado.",
+                    "La violencia machista abarca toda violencia que se ejerza contra las mujeres a excepción de la ejercida contra las mujeres transexuales.",
+                    "La violencia machista se ejerce siempre por acción.",
+                    "La violencia machista se puede ejercer tanto por acción como por omisión."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 114,
+                question: "Señale cuál de los siguientes supuestos son considerados por la Ley 4/2005... como casos constitutivos de violencia machista:",
+                options: [
+                    "La violencia en la pareja.",
+                    "La mutilación genital femenina.",
+                    "La violencia obstétrica.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 115,
+                question: "La Ley 4/2005... establece que las víctimas de la violencia machista contra las mujeres:",
+                options: [
+                    "Deben cumplir con el límite mínimo de edad previsto legalmente para percibir la renta de garantía de ingresos.",
+                    "Quedan exentas de la aplicación del límite mínimo de edad previsto legalmente para la percepción de la renta de garantía de ingresos.",
+                    "Que estén acogidas en pisos o centros de acogida temporal tienen siempre derecho a percibir la renta de garantía de ingresos.",
+                    "Que estén acogidas en pisos o centros de acogida temporal... tienen derecho a percibir la renta de garantía de ingresos solo cuando su manutención básica no esté cubierta por dichos pisos o centros."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 116,
+                question: "Atendiendo a la Ley 4/2005... señale cuál de las siguientes ayudas son catalogadas como ayudas económicas específicas que deberán ser garantizadas... a las víctimas de violencia machista:",
+                options: [
+                    "Ayudas de pago único para víctimas que acrediten insuficiencia de recursos económicos y unas especiales dificultades para obtener empleo...",
+                    "Ayuda económica para los hijos e hijas huérfanas de víctimas mortales de la violencia machista contra las mujeres.",
+                    "Ayudas extraordinarias para paliar situaciones de necesidad personal que sean evaluables y verificables...",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 117,
+                question: "La modificación de la Ley 4/2005, de 18 de febrero, para la igualdad de Mujeres y Hombres, por la ley 1/2022 ha sido aprobada:",
+                options: [
+                    "Por el Parlamento Vasco el 3 de marzo de 2022.",
+                    "Por el Gobierno Vasco el 3 de marzo de 2022.",
+                    "Por el Parlamento Vasco el 17 de marzo de 2022.",
+                    "Por el Parlamento Vasco y publicada en el Boletín Oficial del País Vasco el 3 de marzo de 2022."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 118,
+                question: "La Ley 4/2005... consta de:",
+                options: [
+                    "Título Preliminar, 5 Títulos y 83 artículos.",
+                    "Título Preliminar, 4 Títulos y 83 artículos.",
+                    "Título Preliminar, 4 Títulos, 83 artículos y 3 Disposiciones Adicionales.",
+                    "Título Preliminar, 5 Títulos, 86 artículos y 3 Disposiciones Adicionales."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 119,
+                question: "Conforme a la Ley 4/2005... señale cuál de los siguientes colectivos tienen... la consideración de colectivo preferente en el acceso a las plazas de residencias públicas:",
+                options: [
+                    "Toda víctima de violencia machista contra las mujeres.",
+                    "Aquellas víctimas de la violencia machista contra las mujeres con discapacidad o que sean mayores de 65 años y se encuentren en situación de precariedad económica y así lo soliciten.",
+                    "Todas las víctimas de violencia machista contra las mujeres que sean mayores de 65 años.",
+                    "Todas las víctimas de violencia machista contra las mujeres con discapacidad mayores de 65 años."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 120,
+                question: "Conforme a la Ley 4/2005... corresponde a las Instituciones Comunes de la Comunidad Autónoma de Euskadi:",
+                options: [
+                    "La competencia legislativa y de ejecución en materia de igualdad de mujeres y hombres.",
+                    "La competencia en materia de igualdad de mujeres y hombres está atribuida a los órganos forales.",
+                    "La competencia legislativa, la de desarrollo normativo y la acción directa en materia de igualdad de mujeres y hombres.",
+                    "Ninguna de las anteriores respuestas es correcta."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 121,
+                question: "La Ley 4/2005... establece que los proyectos de normas que se elaboren en el ámbito de la Administración de la Comunidad Autónoma del País Vasco han de ser informados por:",
+                options: [
+                    "El Parlamento Vasco.",
+                    "Emakunde-Instituto Vasco de la Mujer.",
+                    "El Departamento de Igualdad, Justicia y Políticas Sociales del Gobierno Vasco.",
+                    "La Comisión Interinstitucional para la Igualdad de Mujeres y Hombres."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 122,
+                question: "Señale cuál de las siguientes afirmaciones NO es correcta. A Emakunde-Instituto Vasco de la Mujer le corresponde:",
+                options: [
+                    "Practicar investigaciones, tanto de oficio como a instancia de parte, para el esclarecimiento de posibles situaciones de discriminación directa o indirecta por razón de sexo relativas al sector público.",
+                    "Prestar asesoramiento a las ciudadanas y ciudadanos ante posibles situaciones de discriminación por razón de sexo que se produzcan en el sector privado.",
+                    "Servir de cauce para facilitar la resolución de los casos de acoso sexual y acoso por razón de sexo.",
+                    "Colaborar con la autoridad laboral en orden al seguimiento del cumplimiento de la normativa laboral antidiscriminatoria en materia de igualdad de mujeres y hombres."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 123,
+                question: "Respecto a la legitimidad para presentar una queja ante Emakunde-Instituto Vasco de la Mujer, señale la respuesta correcta:",
+                options: [
+                    "La legitimidad se reconoce a cualquier persona o grupo de personas que se considere discriminada por razón de sexo.",
+                    "La legitimidad se reconoce solo a quien ostente nacionalidad española.",
+                    "Las personas jurídicas no están legitimadas para iniciar y tomar parte en el procedimiento en nombre o en apoyo de la persona que se considere discriminada.",
+                    "Las asociaciones y organizaciones que tengan entre sus fines velar por el cumplimiento del principio de igualdad de trato de mujeres y hombres siempre están legitimadas para iniciar y tomar parte en el procedimiento en nombre o en apoyo de la persona que se considere discriminada."
+                ],
+                correctAnswer: 0 // A
+            },
+            {
+                id: 124,
+                question: "Son causas que justifican la inadmisibilidad de la queja interpuesta ante Emakunde-Instituto Vasco de la Mujer las siguientes:",
+                options: [
+                    "Que haya trascurrido el plazo de un año desde que cesó la conducta o los hechos susceptibles de motivar la queja.",
+                    "Que sea manifiestamente infundada o no se aporten los datos que se soliciten.",
+                    "Que no se identifique quien formula la queja.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 3 // D
+            },
+            {
+                id: 125,
+                question: "El procedimiento iniciado ante Emakunde-Instituto Vasco de la Mujer finalizará:",
+                options: [
+                    "Solo por desistimiento de la persona que haya formulado la queja.",
+                    "Por resolución que ponga fin al procedimiento.",
+                    "Por renuncia de la persona que haya formulado la queja aunque esto suponga un perjuicio a terceras personas.",
+                    "Son correctas las respuestas a) y b)."
+                ],
+                correctAnswer: 1 // B
+            },
+            {
+                id: 126,
+                question: "El Informe anual elaborado por Emakunde-Instituto Vasco de la Mujer... ha de presentarse ante:",
+                options: [
+                    "El Gobierno Vasco.",
+                    "El Ararteko.",
+                    "El Parlamento Vasco.",
+                    "La Dirección de Igualdad."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 127,
+                question: "Conforme a la Ley 4/2005... obstruir o negarse absolutamente a la acción investigadora de Emakunde-Instituto Vasco de la Mujer en materia de discriminación se considera:",
+                options: [
+                    "Infracción leve.",
+                    "Infracción muy grave.",
+                    "Infracción grave.",
+                    "No está tipificada como infracción."
+                ],
+                correctAnswer: 2 // C
+            },
+            {
+                id: 128,
+                question: "Las infracciones graves conforme a la Ley 4/2005... son sancionadas con:",
+                options: [
+                    "Multa de hasta 10.000 euros.",
+                    "Multa de 10.001 a 60.000 euros.",
+                    "Multa de 60.001 a 120.000 euros.",
+                    "Multa de hasta 30.000 euros."
+                ],
+                correctAnswer: 0 // B
+            },
+            {
+                id: 129,
+                question: "Señale la respuesta correcta. Conforme a la Ley 1/2022...:",
+                options: [
+                    "La directora o director de Emakunde es la autoridad competente para imponer sanciones leves y graves.",
+                    "El plazo de prescripción de las sanciones muy graves es de un año.",
+                    "El Consejo de Gobierno impone las sanciones graves.",
+                    "El plazo de prescripción de las sanciones graves es de tres meses."
+                ],
+                correctAnswer: 2 // A
+            },
+                       {
+                id: 219,
+                question: "Tal y como dispone el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2028:",
+                options: [
+                    "La rotulación fija, tanto interna como externa, en general ha de estar en las dos lenguas oficiales dando prioridad al euskera.",
+                    "Solo la rotulación fija externa en general ha de estar en las dos lenguas oficiales dando prioridad al euskera.",
+                    "Solo la rotulación fija interna en general ha de estar en las dos lenguas oficiales dando prioridad al euskera.",
+                    "La rotulación fija, tanto interna como externa, debe aparecer únicamente en euskera."
+                ],
+                correctAnswer: 0 // A (Verificada: 219-A)
+            },
+            {
+                id: 220,
+                question: "El III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2028 establece respecto a los mensajes audiovisuales que:",
+                options: [
+                    "Deben emitirse en la lengua que decidan las personas responsable de las unidades que utilizan estos sistemas audiovisuales.",
+                    "Deben emitirse en las dos lenguas oficiales, primero en castellano y luego en euskera.",
+                    "Deben emitirse en las dos lenguas oficiales, primero en euskera y luego en castellano.",
+                    "Deben emitirse en una de las dos lenguas oficiales."
+                ],
+                correctAnswer: 2 // C (Verificada: 220-C)
+            },
+            {
+                id: 221,
+                question: "Respecto a las páginas Web de Osakidetza señale cuál de las siguientes repuestas NO es correcta:",
+                options: [
+                    "En las intranet, extranet y otros sitios web de Osakidetza las personas usuarias deben tener garantizada la navegación y el acceso a toda la información en las dos lenguas oficiales.",
+                    "El personal administrador de los sitios web nunca publicarán textos o contenidos que no estén en las dos lenguas oficiales.",
+                    "Al acceder por primera vez a una página web de Osakidetza, la página de inicio se mostrará por defecto en euskera.",
+                    "Las personas usuarias de los sitios web de Osakidetza deberán tener fácil acceso a los apartados sobre normalización del euskera en la entidad."
+                ],
+                correctAnswer: 1 // B (Verificada: 221-B)
+            },
+            {
+                id: 222,
+                question: "Señale la respuesta correcta:",
+                options: [
+                    "Por aplicación de la Ley Orgánica de Protección de Datos Personales y garantía de los derechos digitales no puede constar en los datos personales de cada paciente de Osakidetza su idioma de preferencia para las comunicaciones con Osakidetza.",
+                    "El signo azul con la letra e indica que el paciente no tiene competencia para comunicarse en un idioma que no sea el euskera para las comunicaciones orales con Osakidetza.",
+                    "En los datos personales de cada paciente, se registrará su idioma de preferencia para las comunicaciones orales con Osakidetza.",
+                    "A las personas que elijan el euskera como lengua prioritaria en sus comunicaciones con Osakidetza solo se les deberá ofrecer servicios en euskera."
+                ],
+                correctAnswer: 2 // C (Verificada: 222-C)
+            },
+            {
+                id: 223,
+                question: "En atención al III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2028, señale la respuesta correcta:",
+                options: [
+                    "“Aukeratu zeure hizkuntza/Elige tu lengua” es el lema de la campaña de activación del registro de la lengua preferente de cada paciente llevada a cabo en 2017.",
+                    "Se atribuye a todas las direcciones y gerencias de Osakidetza la responsabilidad de realizar la campaña con el lema “Aukeratu zeure hizkuntza/Elige tu lengua”.",
+                    "“Aukeratu zeure hizkuntza/Elige tu lengua” es el lema de la campaña de activación del registro de la lengua preferente de cada paciente que realizará Osakidetza durante el primer año de planificación.",
+                    "“Aukeratu zeure hizkuntza/Elige tu lengua” es el lema de la campaña de activación del registro de la lengua preferente de cada paciente que realizará Osakidetza durante el tercer año de planificación."
+                ],
+                correctAnswer: 2 // C (Verificada: 223-C)
+            },
+            {
+                id: 224,
+                question: "El III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2028 contempla que tanto en los servicios de recepción y admisión, como en las unidades asistenciales y administrativas a toda la ciudadanía vascohablante debe garantizarse:",
+                options: [
+                    "La recepción en euskera.",
+                    "La recepción en euskera solo cuando la comunicación oral con pacientes y personas usuarias sea de modo presencial.",
+                    "La recepción en euskera solo cuando la comunicación con pacientes y personas usuarias sea telefónicamente.",
+                    "La recepción en euskera solo por las y los empleados que sepan en euskera."
+                ],
+                correctAnswer: 0 // A (Verificada: 224-A)
+            },
+            {
+                id: 225,
+                question: "Siguiendo lo previsto en el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018:",
+                options: [
+                    "Toda la documentación estándar deberá siempre entregarse a pacientes y personas usuarias en las dos lenguas oficiales.",
+                    "A cada paciente se le entregará su documentación clínica siempre y en todo caso en ambas lenguas.",
+                    "Toda la documentación estándar deberá siempre editarse e imprimirse en una única hoja en las dos lenguas oficiales.",
+                    "Ninguna de las anteriores respuestas es correcta."
+                ],
+                correctAnswer: 3 // D (Verificada: 225-D)
+            },
+            {
+                id: 226,
+                question: "En los escritos individualizados de respuesta a solicitudes y reclamaciones de pacientes o personas usuarias de Osakidetza se utilizará:",
+                options: [
+                    "La lengua utilizada por cada ciudadano o ciudadana.",
+                    "Siempre el euskera como lengua preferente.",
+                    "Siempre las dos lenguas oficiales independientemente de la lengua utilizada por cada ciudadano o ciudadana.",
+                    "Ambas lenguas oficiales, siendo los escritos contestados primero en euskera y luego en castellano."
+                ],
+                correctAnswer: 0 // A (Verificada: 226-A)
+            },
+            {
+                id: 227,
+                question: "Siguiendo lo previsto en el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018, señale la respuesta que NO es correcta:",
+                options: [
+                    "Se pondrá a disposición del personal bilingüe que lo desee diferentes elementos identificativos portadores del circulo azul con la letra e, signo que invita a relacionarse en euskera.",
+                    "El signo azul y la letra e solo se utilizará para la identificación individual del personal bilingüe.",
+                    "En los centros de salud, consultorios y unidades hospitalarias, deberá estar colocado, de modo visible, el cartel que explica a las personas usuarias el significado del signo identificativo con la letra e.",
+                    "Se estudiará introducir una variante del círculo azul con la letra e para el personal dispuesto a que le hablen en euskera pero que muestra dificultades para expresarse en ciertas situaciones."
+                ],
+                correctAnswer: 1 // B (Verificada: 227-B)
+            },
+            {
+                id: 228,
+                question: "En atención a lo previsto en el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018 en todos los centros de atención primaria ha de ponerse en marcha un procedimiento para que, en la medida de las posibilidades, se propongan servicios en euskera a las y los pacientes que hayan registrado esta lengua como preferente y que aún reciban los citados servicios en castellano. Señale a qué servicios se refiere el citado Plan:",
+                options: [
+                    "Medicina familiar, pediatría, enfermería y salud mental.",
+                    "Pediatría, medicina familiar y salud mental.",
+                    "Medicina familiar, pediatría, enfermería y matrona.",
+                    "Todas las anteriores respuestas son correctas."
+                ],
+                correctAnswer: 2 // C (Verificada: 228-C)
+            },
+            {
+                id: 229,
+                question: "Con relación a las quejas relacionadas con el uso de las lenguas oficiales en Osakidetza, señale la respuesta que NO es correcta:",
+                options: [
+                    "La dirección responsable de las acciones previstas con relación a las quejas relaciones con el uso de las lenguas oficiales en Osakidetza es la Dirección de Recursos Humanos.",
+                    "En los Servicios de Atención al Paciente y Usuario (SAPU) quedarán registradas las quejas relacionadas con el uso de las lenguas oficiales.",
+                    "Las quejas relacionadas con el uso de las lenguas oficiales serán gestionadas por el SAPU y por la persona o personas responsables del servicio objeto de la queja.",
+                    "Para mejorar la gestión y seguimiento de las quejas, Osakidetza acordará un protocolo con las entidades que trabajan en el ámbito de los derechos lingüísticos."
+                ],
+                correctAnswer: 0 // A (Verificada: 229-A)
+            },
+            {
+                id: 230,
+                question: "Conforme al III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018 en las relaciones con empresas proveedoras, entidades financieras y organismos privados:",
+                options: [
+                    "Se designarán interlocutores o interlocutoras vasco-hablantes y se notificará el deseo de Osakidetza de relacionarse en euskera.",
+                    "En la comunicación escrita siempre debe utilizarse las dos lenguas oficiales.",
+                    "Osakidetza solicitará a las entidades proveedoras que sus productos que tengan como personas destinatarias a profesionales de Osakidetza estén en euskera.",
+                    "Ninguna de las anteriores respuestas es correcta."
+                ],
+                correctAnswer: 0 // A (Verificada: 230-A)
+            },
+            {
+                id: 231,
+                question: "La Dirección General de Osakidetza realizará una comunicación interna de cara a conocer el registro de la lengua preferente de cada profesional, explicar el modo de registrar la lengua preferente y animar al personal vascohablante a optar por el euskera:",
+                options: [
+                    "Una vez cada seis meses.",
+                    "Una vez al año.",
+                    "Cada vez que haya una nueva contratación.",
+                    "El III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018 no contempla esta acción."
+                ],
+                correctAnswer: 1 // B (Verificada: 231-B)
+            },
+            {
+                id: 232,
+                question: "Conforme al III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018:",
+                options: [
+                    "En los casos de los mensajes SMS que se envían a los teléfonos móviles de personas trabajadoras o candidatas, estarán escritos en las dos lenguas oficiales, primero en castellano y luego en euskera.",
+                    "Los escritos individualizados de respuesta a solicitudes y reclamaciones de las personas trabajadoras deberán redactarse en las dos lenguas oficiales.",
+                    "Osakidetza ha de garantizar que la información y los servicios ofrecidos tanto al personal empleado como a personas candidatas a través de las tecnologías de la comunicación estén en las dos lenguas oficiales, con el fin de que cada persona haga uso de la lengua de su preferencia.",
+                    "Las informaciones y comunicaciones no personalizadas dirigidas al personal deberán redactarse en las dos lenguas oficiales y se dará prioridad al castellano."
+                ],
+                correctAnswer: 2 // C (Verificada: 232-C)
+            },
+            {
+                id: 233,
+                question: "Como contempla el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018:",
+                options: [
+                    "En puestos de Jefatura y responsabilidad, en los servicios de prioridad 2, se asignará fecha de preceptividad siempre que el porcentaje de fechas mínimas del servicio sea el 40% o superior.",
+                    "En puestos de Jefatura y responsabilidad, en los servicios de prioridad 2, se asignará fecha de preceptividad siempre que el porcentaje de fechas mínimas del servicio sea el 50% o superior.",
+                    "En los servicios de prioridad 2 se asignará fecha de preceptividad a los puestos vacantes por jubilación, incapacidad absoluta o fallecimiento de la persona titular cuando el porcentaje mínimo de fechas de preceptividad que corresponde al servicio sea el 50% o superior.",
+                    "Osakidetza realizará al menos una convocatoria anual de acreditación de perfiles lingüísticos de acuerdo a lo establecido en el Decreto 67/2003."
+                ],
+                correctAnswer: 1 // B (Verificada: 233-B)
+            },
+            {
+                id: 234,
+                question: "Señale cuál de las siguientes afirmaciones NO es correcta, respecto al certificado de calidad Bikain en el ámbito de Osakidetza:",
+                options: [
+                    "El objetivo es alcanzar los 400 puntos en las zonas sociolingüísticas C y D.",
+                    "El objetivo es alcanzar los 500 puntos en las zonas sociolingüísticas A y B.",
+                    "El objetivo es alcanzar los 400 puntos en las zonas sociolingüísticas A y B.",
+                    "Las organizaciones de servicios de Osakidetza que se presenten de modo integral al certificado de calidad en gestión lingüística Bikain lo deberán hacer al menos una vez durante el período de planificación."
+                ],
+                correctAnswer: 2 // C (Verificada: 234-C)
+            },
+            {
+                id: 235,
+                question: "Osakidetza realizará dos evaluaciones generales del plan de euskera:",
+                options: [
+                    "La primera el tercer año del período de planificación, y la segunda, el sexto año.",
+                    "La primera el segunda año del período de planificación, y la segunda, el sexto año.",
+                    "La primera el tercer año del período de planificación, y la segunda, el sexto año y será una evaluación cualitativa.",
+                    "La primera el segunda año del período de planificación, y la segunda, el sexto año y será una evaluación cuantitativa fundamentada en los indicadores del plan."
+                ],
+                correctAnswer: 0 // A (Verificada: 235-A)
+            },
+            {
+                id: 236,
+                question: "Tal y como contempla el III Plan de Normalización del Uso del Euskera en Osakidetza 2022-2018 todas las organizaciones de Osakidetza deberán contar con una Comisión de Seguimiento del plan de euskera:",
+                options: [
+                    "Que estará integrada como máximo por 15 participantes.",
+                    "Que se reunirá al menos una vez al año.",
+                    "Que estará compuesta por representantes de la Dirección General y de diversas organizaciones.",
+                    "Ninguna de las anteriores respuestas es correcta."
+                ],
+                correctAnswer: 3 // D (Verificada: 236-D)
+            }
+        ];
+
+        // --------------------------------------------------------
+        // COMPONENTES REACT
+        // --------------------------------------------------------
+
+        const { useState, useEffect } = React;
+
+        const ProgressBar = ({ current, total }) => {
+            const percentage = (current / total) * 100;
+            return (
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div 
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                        style={{ width: `${percentage}%` }}
+                    ></div>
+                </div>
+            );
+        };
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const Button = ({ onClick, children, variant = "primary", className = "", disabled = false }) => {
+            const baseStyle = "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2";
+            const variants = {
+                primary: "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500",
+                secondary: "bg-gray-100 hover:bg-gray-200 text-gray-800 focus:ring-gray-500",
+                success: "bg-green-500 hover:bg-green-600 text-white shadow-md focus:ring-green-500",
+                danger: "bg-red-500 hover:bg-red-600 text-white shadow-md focus:ring-red-500",
+                outline: "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+            };
+            
+            return (
+                <button 
+                    onClick={onClick} 
+                    disabled={disabled}
+                    className={`${baseStyle} ${variants[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+                >
+                    {children}
+                </button>
+            );
+        };
+
+        const ResultIcon = ({ correct }) => (
+            correct 
+            ? <span className="inline-flex items-center justify-center w-8 h-8 mr-3 bg-green-100 rounded-full text-green-600">✓</span>
+            : <span className="inline-flex items-center justify-center w-8 h-8 mr-3 bg-red-100 rounded-full text-red-600">✕</span>
+        );
+
+        const App = () => {
+            const [gameState, setGameState] = useState("start"); // start, playing, results
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [isAnswered, setIsAnswered] = useState(false);
+            const [reviewMode, setReviewMode] = useState(false);
+            const [userAnswers, setUserAnswers] = useState([]);
+
+            const handleStart = () => {
+                setGameState("playing");
+                setCurrentQuestionIndex(0);
+                setScore(0);
+                setUserAnswers([]);
+                setReviewMode(false);
+                resetQuestionState();
+            };
+
+            const resetQuestionState = () => {
+                setSelectedOption(null);
+                setIsAnswered(false);
+            };
+
+            const handleOptionClick = (index) => {
+                if (isAnswered) return;
+                setSelectedOption(index);
+                setIsAnswered(true);
+
+                const currentQ = questionsData[currentQuestionIndex];
+                const isCorrect = index === currentQ.correctAnswer;
+                
+                if (isCorrect) {
+                    setScore(prev => prev + 1);
+                }
+
+                // Guardar respuesta para revisión
+                setUserAnswers(prev => [...prev, {
+                    questionId: currentQ.id,
+                    selected: index,
+                    correct: currentQ.correctAnswer,
+                    isCorrect: isCorrect
+                }]);
+            };
+
+            const handleNext = () => {
+                if (currentQuestionIndex < questionsData.length - 1) {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                    resetQuestionState();
+                } else {
+                    setGameState("results");
+                }
+            };
+
+            // Pantalla de Inicio
+            if (gameState === "start") {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="max-w-lg w-full">
+                            <Card className="text-center fade-in">
+                                <div className="mb-6 flex justify-center">
+                                    <div className="bg-red-100 p-4 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h1 className="text-3xl font-bold text-gray-800 mb-2">OPE Osakidetza</h1>
+                                <h2 className="text-xl text-gray-600 mb-6">Temario Común - Administrativa</h2>
+                                <p className="text-gray-500 mb-8">
+                                    Simulador de examen basado en el temario oficial. 
+                                </p>
+                                <div className="space-y-4">
+                                    <div className="bg-blue-50 p-4 rounded-lg text-left border border-blue-100">
+                                        <p className="font-semibold text-blue-800">📊 Bateria 145 preguntas</p>
+                                        <p className="text-sm text-blue-600">Modo corrección inmediata</p>
+                                    </div>
+                                    <Button onClick={handleStart}>
+                                        Comenzar Examen
+                                    </Button>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Pantalla de Juego
+            if (gameState === "playing") {
+                const question = questionsData[currentQuestionIndex];
+                
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4 max-w-2xl mx-auto">
+                        <div className="w-full mb-4 flex justify-between items-center text-sm font-medium text-gray-500">
+                            <span>Pregunta {currentQuestionIndex + 1} de {questionsData.length}</span>
+                            <span>Aciertos: {score}</span>
+                        </div>
+                        
+                        <ProgressBar current={currentQuestionIndex + 1} total={questionsData.length} />
+
+                        <Card className="w-full mb-6 fade-in">
+                            <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                                {question.question}
+                            </h3>
+
+                            <div className="space-y-3">
+                                {question.options.map((option, index) => {
+                                    let optionStyle = "border-gray-200 hover:bg-gray-50 hover:border-blue-300";
+                                    let icon = <span className="w-6 h-6 flex items-center justify-center rounded-full border border-gray-300 text-xs text-gray-500 mr-3 font-mono">{String.fromCharCode(65 + index)}</span>;
+
+                                    if (isAnswered) {
+                                        if (index === question.correctAnswer) {
+                                            optionStyle = "bg-green-50 border-green-500 text-green-800";
+                                            icon = <span className="w-6 h-6 flex items-center justify-center rounded-full bg-green-500 text-white mr-3">✓</span>;
+                                        } else if (index === selectedOption) {
+                                            optionStyle = "bg-red-50 border-red-500 text-red-800";
+                                            icon = <span className="w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white mr-3">✕</span>;
+                                        } else {
+                                            optionStyle = "opacity-50 border-gray-200";
+                                        }
+                                    }
+
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleOptionClick(index)}
+                                            disabled={isAnswered}
+                                            className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-start ${optionStyle}`}
+                                        >
+                                            <div className="flex-shrink-0 mt-0.5">{icon}</div>
+                                            <span className="text-sm md:text-base">{option}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </Card>
+
+                        {isAnswered && (
+                            <div className="w-full fade-in">
+                                <Button onClick={handleNext}>
+                                    {currentQuestionIndex < questionsData.length - 1 ? "Siguiente Pregunta" : "Ver Resultados"}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            // Pantalla de Resultados
+            if (gameState === "results") {
+                const percentage = Math.round((score / questionsData.length) * 100);
+                let message = "";
+                let colorClass = "";
+
+                if (percentage >= 90) {
+                    message = "¡Excelente! Estás list@ para la plaza.";
+                    colorClass = "text-green-600";
+                } else if (percentage >= 50) {
+                    message = "Buen trabajo. Sigue repasando.";
+                    colorClass = "text-blue-600";
+                } else {
+                    message = "Necesitas estudiar más.";
+                    colorClass = "text-red-600";
+                }
+
+                return (
+                    <div className="min-h-screen py-10 px-4 max-w-3xl mx-auto">
+                        <Card className="text-center mb-8 fade-in">
+                            <h2 className="text-3xl font-bold text-gray-800 mb-2">Resultados</h2>
+                            <div className={`text-6xl font-bold my-6 ${colorClass}`}>
+                                {score} <span className="text-2xl text-gray-400">/ {questionsData.length}</span>
+                            </div>
+                            <p className="text-xl font-medium text-gray-700 mb-8">{message}</p>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="text-sm text-gray-500">Porcentaje</div>
+                                    <div className="text-2xl font-bold text-gray-800">{percentage}%</div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="text-sm text-gray-500">Fallos</div>
+                                    <div className="text-2xl font-bold text-gray-800">{questionsData.length - score}</div>
+                                </div>
+                            </div>
+
+                            <Button onClick={handleStart}>
+                                Repetir Examen
+                            </Button>
+                        </Card>
+
+                        <div className="space-y-4">
+                            <h3 className="text-xl font-bold text-gray-700 ml-1">Revisión de respuestas</h3>
+                            {userAnswers.map((ans, idx) => (
+                                <Card key={idx} className={`border-l-4 ${ans.isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}>
+                                    <div className="flex items-start mb-2">
+                                        <div className="flex-shrink-0 mt-1">
+                                            <ResultIcon correct={ans.isCorrect} />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-800 text-sm mb-1">Pregunta {idx + 1}</p>
+                                            <p className="text-gray-700 mb-3">{questionsData[ans.questionId - 1].question}</p>
+                                            
+                                            {!ans.isCorrect && (
+                                                <div className="mb-2">
+                                                    <span className="text-xs font-bold text-red-500 uppercase tracking-wide">Tu respuesta:</span>
+                                                    <p className="text-red-700 text-sm mt-1 bg-red-50 p-2 rounded">
+                                                        {questionsData[ans.questionId - 1].options[ans.selected]}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            
+                                            <div>
+                                                <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Respuesta Correcta:</span>
+                                                <p className="text-green-800 text-sm mt-1 bg-green-50 p-2 rounded">
+                                                    {questionsData[ans.questionId - 1].options[ans.correct]}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
