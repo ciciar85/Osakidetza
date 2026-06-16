@@ -7,10 +7,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.12/babel.min.js"></script>
     
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
@@ -21,7 +20,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen">
     <div id="root"></div>
 
-    <script type="text/jsx" data-plugins="transform-modules-umd">
+    <script type="text/text/babel">
         const { useState, useEffect } = React;
 
         // --- DATOS: BLOQUES 1 a 5 (Preguntas literales del PDF) ---
